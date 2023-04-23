@@ -1,3 +1,7 @@
+if (!dir.exists("logs")) {
+  dir.create("logs")
+}
+
 LogFile <- function(day) {
   paste0("logs/", day, ".csv.gz")
 }
@@ -25,13 +29,13 @@ GetLogs <- function(day) {
   
   logs <- read.csv(gzfile)
   pkgLogs <- logs[logs$package %in% packages,
-                  c("date", "r_version", "r_os", "package", "version", "country")]
-  if (!dir.exists("logs")) {
-    dir.create("logs")
-  }
-  gzcon <- gzfile(LogFile(day))
-  on.exit(close(gzcon))
+                  c("date", "r_version", "r_os",
+                    "package", "version", "country")]
+
+  gzcon <- gzfile(LogFile(day), "w")
   write.csv(pkgLogs, gzcon)
+  tryCatch(close(gzcon),
+           error = function(e) message("Couldn't close connection"))
 }
 
 day <- Sys.Date() - 3
