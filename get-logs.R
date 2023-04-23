@@ -42,7 +42,7 @@ day <- Sys.Date() - 3
 while (as.POSIXlt(day)$year + 1900 > 2012) {
   if (!file.exists(LogFile(day))) {
     GetLogs(day)
-    #break
+    break
   }
   day <- day - 1
 }
