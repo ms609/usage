@@ -29,9 +29,9 @@ GetLogs <- function(day) {
   if (!dir.exists("logs")) {
     dir.create("logs")
   }
-  con <- gzfile(LogFile(day))
-  write.csv(pkgLogs, con)
-  close(con)
+  gzcon <- gzfile(LogFile(day))
+  on.exit(close(gzcon))
+  write.csv(pkgLogs, gzcon)
 }
 
 day <- Sys.Date() - 3
