@@ -25,7 +25,7 @@ GetLogs <- function(day) {
   
   logs <- read.csv(gzfile)
   pkgLogs <- logs[logs$package %in% packages,
-                  c("r_version", "r_os", "package", "version", "country")]
+                  c("date", "r_version", "r_os", "package", "version", "country")]
   if (!dir.exists("logs")) {
     dir.create("logs")
   }
@@ -38,7 +38,7 @@ day <- Sys.Date() - 3
 while (as.POSIXlt(day)$year + 1900 > 2012) {
   if (!file.exists(LogFile(day))) {
     GetLogs(day)
-    break
+    #break
   }
   day <- day - 1
 }
