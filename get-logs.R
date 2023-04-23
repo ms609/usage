@@ -40,4 +40,5 @@ while (as.POSIXlt(day)$year + 1900 > 2012) {
     GetLogs(day)
     break
   }
+  day <- day - 1
 }
