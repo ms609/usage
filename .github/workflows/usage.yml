@@ -9,6 +9,7 @@ on:
       - master
     paths-ignore:
       - "*.csv.gz"
+      - "*.html"
 
 name: Get logs
 
@@ -46,3 +47,11 @@ jobs:
       - name: Render output
         run: |
           rmarkdown::render("summary.Rmd")
+
+      - name: Push output
+        run: |
+          git fetch
+          git pull --ff-only
+          git add *.html
+          git diff-index --quiet HEAD || git commit -m "Update results"
+          git push
