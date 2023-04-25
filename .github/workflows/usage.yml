@@ -37,13 +37,11 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Add logs"
           git push
           
-      - uses: r-lib/actions/setup-pandoc@v2
-      
       - uses: r-lib/actions/setup-r-dependencies@v2
       
       - name: Render output
         run: |
-          rmarkdown::render("summary.Rmd")
+          Rscript -e rmarkdown::render("summary.Rmd")
 
       - name: Push output
         run: |
