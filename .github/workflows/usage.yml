@@ -41,7 +41,7 @@ jobs:
       
       - name: Render output
         run: |
-          Rscript -e rmarkdown::render("summary.Rmd")
+          Rscript -e "rmarkdown::render('summary.Rmd')"
 
       - name: Push output
         run: |
