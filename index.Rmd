@@ -51,6 +51,9 @@ SummaryBlock <- function(packageName) {
 }
 ```
 
-```{r ternary, echo = FALSE, results = "asis"}
+Note that downloads with no R version information are excluded from the 
+respective summary plots.
+
+```{r package-statistics, echo = FALSE, results = "asis"}
 invisible(lapply(sort(unique(downloads$package)), SummaryBlock))
 ```
