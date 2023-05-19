@@ -50,3 +50,4 @@ rsconnect/
 
 # Raw log files
 /*.csv.gz
+*.bak
