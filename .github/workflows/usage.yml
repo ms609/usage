@@ -28,7 +28,6 @@ jobs:
         
       - name: Get log files
         run: |
-          dir *.R
           Rscript get-logs.R
         
       - name: Push updated logs
