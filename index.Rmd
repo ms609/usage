@@ -44,6 +44,8 @@ SummaryBlock <- function(packageName) {
   
   
   tab <- table(pkg[, c("version", "month")])
+  versions <- as.package_version(rownames(tab))
+  tab <- tab[order(versions), ]
   par(mar = c(5, 3, 0.1, 0.1))
   vPal <- hcl.colors(nrow(tab))
   bp <- barplot(tab, las = 2, col = vPal)
