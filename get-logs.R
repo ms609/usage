@@ -28,7 +28,7 @@ GetLogs <- function(day) {
   }
   
   logs <- read.csv(gzfile)
-  pkgLogs <- logs[logs$package %in% packages,
+  pkgLogs <- logs[logs[["package"]] %in% packages,
                   c("date", "r_version", "r_os",
                     "package", "version", "country")]
 
