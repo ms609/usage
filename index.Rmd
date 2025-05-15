@@ -15,9 +15,9 @@ VersionPalette <- function(minor) {
          "4.2" = "Light Grays",
          "4.3" = "TealGrn",
          "4.4" = "Mint",
-         "4.5" = "Blues",
-         "4.6" = "YlGnBu",
-         "4.7" = "BuPu",
+         "4.5" = "BuPu",
+         "4.6" = "SubsetDark",
+         "4.7" = "Peach",
          "Earth")),
          paste0(minor, ".", 0:5))
 }
@@ -50,7 +50,7 @@ SummaryBlock <- function(packageName) {
   versions <- as.package_version(rownames(tab))
   tab <- tab[order(versions), ]
   par(mar = c(5, 3, 0.1, 0.1))
-  vPal <- hcl.colors(nrow(tab))
+  vPal <- rep(hcl.colors(8, "Temps"), length.out = nrow(tab))
   bp <- barplot(tab, las = 2, col = vPal)
   legend("topright", rev(rownames(tab)), pch = 15, col = rev(vPal),
          ncol = 2, xpd = NA, cex = 0.8, bty = "n", title = "Package version")
