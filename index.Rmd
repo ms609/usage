@@ -34,6 +34,10 @@ downloads$month <- substr(downloads[["date"]], 1, 7)
 ```{r function-definitions, echo = FALSE}
 SummaryBlock <- function(packageName) {
   cat(paste("\n\n##", packageName, "\n"))
+  cat(paste0("[CRAN](https://CRAN.R-project.org/package=", packageName,
+             ") | [Docs](https://ms609.github.io/", packageName,
+             ") | [GitHub](https://github.com/ms609/", packageName,
+             ")\n\n"))
   pkg <- downloads[downloads[["package"]] == packageName, ]
   pkg[["version"]] <- gsub("\\.tar\\.gz.*", "", pkg[["version"]])
   
