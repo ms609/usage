@@ -1,6 +1,6 @@
 ---
 title: "Usage statistics"
-date: '`r Sys.time()`'
+date: '`r format(Sys.time(), format = "%Y-%m-%d %H:%M %Z")`'
 ---
 
 ```{r settings, echo = FALSE}
