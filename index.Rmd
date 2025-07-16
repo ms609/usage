@@ -53,11 +53,15 @@ SummaryBlock <- function(packageName) {
   tab <- table(pkg[, c("version", "month")])
   versions <- as.package_version(rownames(tab))
   tab <- tab[order(versions), ]
+  major <- gsub("^(\\d+\\.\\d+)\\..*$", "\\1", rownames(tab), perl = TRUE)
+  majors <- unique(major)
+  vPal <- setNames(rep(hcl.colors(min(8, length(majors)), "Temps"),
+                       length.out = length(majors)), majors)
   par(mar = c(5, 3, 0.1, 0.1))
-  vPal <- rep(hcl.colors(8, "Temps"), length.out = nrow(tab))
-  bp <- barplot(tab, las = 2, col = vPal)
-  legend("topleft", rev(rownames(tab)), pch = 15, col = rev(vPal),
-         ncol = 2, xpd = NA, cex = 0.8, bty = "n", title = "Package version")
+  bp <- barplot(tab, las = 2, col = vPal[major])
+  legend("topleft", rev(majors), pch = 15, col = vPal[rev(majors)],
+         ncol = ceiling(length(majors) / 8), xpd = NA, cex = 0.8, bty = "n",
+         title = "Package version")
 }
 ```
 
