@@ -74,7 +74,7 @@ BackfillDay <- function(day) {
 }
 
 # Walk backwards from yesterday, process the first log that lacks ips data
-day <- as.Date("2025-10-16")
+day <- as.Date("2026-02-16")
 while (as.integer(format(day, "%Y")) > 2012) {
   if (NeedsIps(day)) {
     BackfillDay(day)
