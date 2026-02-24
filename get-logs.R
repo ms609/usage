@@ -10,6 +10,7 @@ GetLogs <- function(day) {
   options(timeout = max(300, getOption("timeout")))
   
   packages <- c(
+    "ips",
     "PlotTools",
     "Quartet",
     "Rogue",
@@ -24,9 +25,15 @@ GetLogs <- function(day) {
   gzfile <- paste0(day, ".csv.gz")
   if (!file.exists(gzfile)) {
     fileurl <- paste0("http://cran-logs.rstudio.com/", year, "/", gzfile)
-    download.file(fileurl, gzfile)
+    tryCatch(download.file(fileurl, gzfile),
+             error = function(e) {
+               message("Failed to download log file: ", e$message)
+             })
   }
   
+  if (!file.exists(gzfile)) {
+    return(FALSE)
+  }
   logs <- read.csv(gzfile)
   pkgLogs <- logs[logs[["package"]] %in% packages,
                   c("date", "r_version", "r_os",
