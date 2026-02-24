@@ -29,6 +29,7 @@ jobs:
       - name: Get log files
         run: |
           Rscript get-logs.R
+          Rscript backfill-ips.R
         
       - name: Push updated logs
         run: |
