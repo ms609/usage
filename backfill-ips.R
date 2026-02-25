@@ -51,7 +51,7 @@ BackfillDay <- function(day) {
 # Each run backfills one date then stops; skip dates that already have ips
 # data, lack a local log, or whose download fails.
 day <- as.Date("2026-02-15")
-while (as.integer(format(day, "%Y")) > 2012) {
+while (as.integer(format(day, "%Y")) > 2018) {
   if (NeedsIps(day)) {
     result <- BackfillDay(day)
     if (isTRUE(result)) {
