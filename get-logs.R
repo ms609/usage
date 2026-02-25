@@ -25,10 +25,20 @@ GetLogs <- function(day) {
   gzfile <- paste0(day, ".csv.gz")
   if (!file.exists(gzfile)) {
     fileurl <- paste0("http://cran-logs.rstudio.com/", year, "/", gzfile)
-    tryCatch(download.file(fileurl, gzfile),
-             error = function(e) {
-               message("Failed to download log file: ", e$message)
-             })
+    ok <- tryCatch({
+      download.file(fileurl, gzfile)
+      TRUE
+    }, error = function(e) {
+      message("Failed to download log file: ", e$message)
+      FALSE
+    })
+    # Remove any zero-byte or partial file left by a failed download
+    if (!ok) {
+      if (file.exists(gzfile) && file.size(gzfile) == 0) {
+        file.remove(gzfile)
+      }
+      return(FALSE)
+    }
   }
   
   if (!file.exists(gzfile)) {
@@ -43,13 +53,19 @@ GetLogs <- function(day) {
   write.csv(pkgLogs, gzcon)
   tryCatch(close(gzcon),
            error = function(e) message("Couldn't close connection"))
+  TRUE
 }
 
 day <- Sys.Date() - 3
 while (as.POSIXlt(day)$year + 1900 > 2012) {
   if (!file.exists(LogFile(day))) {
-    GetLogs(day)
-    break
+    ok <- GetLogs(day)
+    if (ok) {
+      # Successfully fetched a log; stop for this run
+      break
+    }
+    # Download failed (e.g. 404) — skip this date and try the next older day
+    message("Skipping ", day, " (download failed); trying earlier dates")
   }
   day <- day - 1
 }
