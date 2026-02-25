@@ -4,51 +4,26 @@
 # CRAN log, extract ips rows, merge them into the stored file, and save.
 # Processes one day at a time (most recent first) so you can run incrementally.
 #
-# Run repeatedly until all historic log files contain ips data (or until
-# the download fails because the CRAN log is not yet available / too old).
+# Run repeatedly until the script exits silently (all historic logs checked).
 
-source("get-logs.R")   # brings LogFile() into scope
-
-packages <- c(
-  "ips",
-  "PlotTools",
-  "Quartet",
-  "Rogue",
-  "Ternary",
-  "TreeDist",
-  "TreeSearch",
-  "TreeTools",
-  "TBRDist"
-)
+source("utils.R")
 
 NeedsIps <- function(day) {
   lf <- LogFile(day)
-  if (!file.exists(lf)) return(FALSE)   # no local log yet — skip
-  existing <- read.csv(lf)
-  !"ips" %in% existing[["package"]]
+  if (!file.exists(lf)) return(FALSE)   # no local log — nothing to backfill
+  !"ips" %in% read.csv(lf)[["package"]]
 }
 
 BackfillDay <- function(day) {
-  lf     <- LogFile(day)
-  year   <- as.POSIXlt(day)$year + 1900
-  gzfile <- paste0(day, ".csv.gz")
-
-  options(timeout = max(300, getOption("timeout")))
-
-  # Download the raw CRAN log if not cached locally
-  if (!file.exists(gzfile)) {
-    fileurl <- paste0("http://cran-logs.rstudio.com/", year, "/", gzfile)
-    ok <- tryCatch({
-      download.file(fileurl, gzfile)
-      TRUE
-    }, error = function(e) {
-      message("Failed to download log for ", day, ": ", e$message)
-      FALSE
-    })
-    if (!ok) return(invisible(FALSE))
+  lf <- LogFile(day)
+  if (!DownloadRawLog(day)) {
+    # Return NA to signal a download failure so the caller skips this date
+    # rather than stopping entirely.
+    return(invisible(NA))
   }
 
-  raw <- read.csv(gzfile)
+  gzfile <- paste0(day, ".csv.gz")
+  raw    <- read.csv(gzfile)
 
   # Rows for all monitored packages (same columns as get-logs.R)
   fresh <- raw[raw[["package"]] %in% packages,
@@ -57,7 +32,6 @@ BackfillDay <- function(day) {
   # Merge with existing log, replacing any rows for the same packages to avoid
   # duplicates, then re-save
   existing <- read.csv(lf)
-  # Drop rows for packages that are now being refreshed (in case of partial data)
   existing <- existing[!existing[["package"]] %in% packages, ]
   merged   <- rbind(existing[, c("date", "r_version", "r_os",
                                  "package", "version", "country")],
@@ -73,12 +47,19 @@ BackfillDay <- function(day) {
   invisible(TRUE)
 }
 
-# Walk backwards from yesterday, process the first log that lacks ips data
-day <- as.Date("2026-02-16")
+# Walk backwards from the day before ips was first collected by get-logs.R.
+# Each run backfills one date then stops; skip dates that already have ips
+# data, lack a local log, or whose download fails.
+day <- as.Date("2026-02-15")
 while (as.integer(format(day, "%Y")) > 2012) {
   if (NeedsIps(day)) {
-    BackfillDay(day)
-    break
+    result <- BackfillDay(day)
+    if (isTRUE(result)) {
+      # Successfully backfilled one date; stop for this run
+      break
+    }
+    # Download failed — skip this date and continue to the next older day
+    message("Skipping ", day, " (download failed); trying earlier dates")
   }
   day <- day - 1
 }
