@@ -29,16 +29,21 @@ DownloadRawLog <- function(day) {
   year    <- as.POSIXlt(day)$year + 1900
   fileurl <- paste0("http://cran-logs.rstudio.com/", year, "/", gzfile)
 
-  ok <- tryCatch({
-    download.file(fileurl, gzfile)
-    TRUE
-  }, error = function(e) {
-    message("Failed to download log for ", day, ": ", e$message)
-    FALSE
-  })
+  # download.file() returns non-zero on failure and may only warn rather than
+  # error (e.g. HTTP 404), so capture the return value rather than relying on
+  # tryCatch alone.
+  status <- tryCatch(
+    suppressWarnings(download.file(fileurl, gzfile, quiet = TRUE)),
+    error = function(e) {
+      message("Failed to download log for ", day, ": ", e$message)
+      1L
+    }
+  )
 
-  if (!ok && file.exists(gzfile) && file.size(gzfile) == 0) {
-    file.remove(gzfile)
+  ok <- status == 0 && file.exists(gzfile) && file.size(gzfile) > 0
+  if (!ok) {
+    if (file.exists(gzfile)) file.remove(gzfile)
+    message("Failed to download log for ", day, " (HTTP error or empty file)")
   }
   ok
 }
