@@ -4,6 +4,7 @@ if (!dir.exists("logs")) {
 
 packages <- c(
   "ConsTree",
+  "Coreset",
   "ips",
   "PlotTools",
   "Quartet",
